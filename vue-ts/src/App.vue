@@ -1,5 +1,7 @@
 <template>
   <div id="app">
+    <NavBar />
+    <BreadCrumb />
     <!--nav>
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
@@ -30,3 +32,28 @@ nav {
   }
 }
 </style>
+
+<script lang="ts">
+
+import { NavBar, MenuBar, BreadCrumb } from '@/components'
+import { Component, Vue } from 'vue-property-decorator'
+
+@Component({
+  components: {
+    MenuBar,
+    NavBar,
+    BreadCrumb
+  }
+})
+export default class App extends Vue {
+  data () {
+    return {
+      open: true,
+      overlay: false,
+      fullheight: true,
+      fullwidth: false,
+      right: false
+    }
+  }
+}
+</script>

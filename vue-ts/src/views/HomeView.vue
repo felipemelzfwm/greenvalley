@@ -1,20 +1,9 @@
 <template>
   <div class="home">
-    <b-sidebar
-      type="is-light"
-      :fullheight="fullheight"
-      :fullwidth="fullwidth"
-      :overlay="overlay"
-      :right="right"
-      v-model="open"
-    >
-      <MenuBar />
-    </b-sidebar>
     <div class="container">
-
-        <img alt="Vue logo" src="../assets/logo.png">
-        <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
-
+        <!--img alt="Vue logo" src="../assets/logo.png">
+        <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/"!-->
+        <p> olá meu mundo </p>
     </div>
   </div>
 </template>
