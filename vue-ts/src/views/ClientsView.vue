@@ -1,9 +1,7 @@
 <template>
   <div class="home">
     <div class="container">
-        <!--img alt="Vue logo" src="../assets/logo.png">
-        <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/"!-->
-        <p> olá meu mundo </p>
+      <ClientCard v-for="client in clients" :key="client" style="margin-bottom: 10px"></ClientCard>
     </div>
   </div>
 </template>
@@ -11,17 +9,18 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 // import HelloWorld from '@/components/HelloWorld.vue' // @ is an alias to /src
-import MenuBar from '@/components/MenuBar.vue'
+import { ClientCard } from '@/components'
 
 @Component({
   components: {
     // HelloWorld,
-    MenuBar
+    ClientCard
   }
 })
-export default class HomeView extends Vue {
+export default class ClientsView extends Vue {
   data () {
     return {
+      clients: [1, 2, 3, 4]
     }
   }
 }

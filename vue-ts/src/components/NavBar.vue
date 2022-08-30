@@ -10,11 +10,14 @@
             </b-navbar-item>
         </template>
         <template #start>
-            <b-navbar-item href="#">
+            <b-navbar-item href="/home">
                 Home
             </b-navbar-item>
-            <b-navbar-item href="#">
-                Documentation
+            <b-navbar-item href="/home/profile">
+                Profile
+            </b-navbar-item>
+            <b-navbar-item href="/home/client">
+                Clients
             </b-navbar-item>
             <b-navbar-dropdown label="Info">
                 <b-navbar-item href="#">
@@ -29,36 +32,58 @@
         <template #end>
             <b-navbar-item tag="div">
                 <div class="buttons">
-                    <a class="button is-primary">
-                        <strong>Sign up</strong>
-                    </a>
-                    <a class="button is-light">
-                        Log in
-                    </a>
+                    <b-button
+                      v-show="!isLoggedIn"
+                      label="Login"
+                      type="is-primary"
+                      size="is-default"
+                      @click="closeLoginModal = true" />
+                    <b-button
+                      v-show="isLoggedIn"
+                      label="Logout"
+                      type="is-primary"
+                      size="is-default"
+                      @click="logout" />
                 </div>
             </b-navbar-item>
         </template>
     </b-navbar>
-    <MenuBar />
-    <LoginModalg />
+    <!--MenuBar /!-->
+    <LoginModal
+        email=test@test.com
+        password=123456
+        :canCancel="false"
+        :close="closeLoginModal"
+        @close="closeLoginModal = false"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { MenuBar } from './index.ts'
-import LoginModalg from './LoginModalg.vue'
+// import { MenuBar } from './index.ts'
+import LoginModal from './LoginModal.vue'
 
 @Component({
   components: {
-    MenuBar,
-    LoginModalg
+    // MenuBar,
+    LoginModal
   }
 })
 export default class NavBar extends Vue {
   data () {
     return {
+      closeLoginModal: false
     }
+  }
+
+  get isLoggedIn () {
+    return this.$store.state.loggedIn
+  }
+
+  logout () {
+    this.$store.commit('loggedIn', false)
+    this.closeLoginModal = false
   }
 }
 </script>

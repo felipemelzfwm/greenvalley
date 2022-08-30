@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <NavBar />
-    <BreadCrumb />
+    <BreadCrumb v-if="isLoggedIn"></BreadCrumb>
     <!--nav>
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
@@ -54,6 +54,10 @@ export default class App extends Vue {
       fullwidth: false,
       right: false
     }
+  }
+
+  get isLoggedIn () {
+    return this.$store.state.loggedIn
   }
 }
 </script>
