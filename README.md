@@ -1,4 +1,4 @@
-# GRENVALLEY
+# GREENVALLEY
 
 Sample app using Buefy and Vue.js
 
