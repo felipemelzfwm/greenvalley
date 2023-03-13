@@ -5,9 +5,11 @@ import ClientsView from '../views/ClientsView.vue'
 
 Vue.use(VueRouter)
 
+const baseUrl = process.env.NODE_ENV === 'production' ? '/greenvalley/' : ''
+
 const routes: Array<RouteConfig> = [
   {
-    path: '/',
+    path: baseUrl + '/',
     name: 'Home',
     component: HomeView,
     meta: {
@@ -20,7 +22,7 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: '/home',
+    path: baseUrl + '/home',
     name: 'Home',
     component: HomeView,
     meta: {
@@ -33,7 +35,7 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: '/home/profile',
+    path: baseUrl + '/home/profile',
     name: 'Profile',
     component: HomeView,
     meta: {
@@ -52,7 +54,7 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: '/home/client',
+    path: baseUrl + '/home/client',
     name: 'Client',
     component: ClientsView,
     meta: {
@@ -72,7 +74,7 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: '/home/client/:clientId',
+    path: baseUrl + '/home/client/:clientId',
     name: 'Client',
     component: HomeView,
     meta: {
@@ -105,11 +107,9 @@ const routes: Array<RouteConfig> = [
   } */
 ]
 
-const baseUrl = process.env.NODE_ENV === 'production' ? '/greenvalley/' : process.env.BASE_URL
-
 const router = new VueRouter({
   mode: 'history',
-  base: baseUrl,
+  base: process.env.BASE_URL,
   routes
 })
 
