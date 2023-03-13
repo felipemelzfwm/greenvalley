@@ -5,11 +5,11 @@ import ClientsView from '../views/ClientsView.vue'
 
 Vue.use(VueRouter)
 
-const baseUrl = process.env.NODE_ENV === 'production' ? '/greenvalley/' : ''
+const baseUrl = process.env.NODE_ENV === 'production' ? '/greenvalley' : ''
 
 const routes: Array<RouteConfig> = [
   {
-    path: baseUrl + '/',
+    path: '/',
     name: 'Home',
     component: HomeView,
     meta: {
