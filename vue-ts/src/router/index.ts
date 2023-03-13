@@ -105,9 +105,11 @@ const routes: Array<RouteConfig> = [
   } */
 ]
 
+const baseUrl = process.env.NODE_ENV === "production" ? process.env.BASE_URL + "greenvalley/" : process.env.BASE_URL;
+
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
+  base: baseUrl,
   routes
 })
 
