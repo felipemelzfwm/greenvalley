@@ -1,0 +1,610 @@
+<template>
+  <section>
+      <div class="p-1">
+       <h1> Planejamento </h1>
+       <div id="form" style="width:100%;">		
+			<div id="form" style="width:100%;">
+				<div id="item0" style="width:100%; margin-top: 10px;" types='item' colors='#17BECF'>
+					<label style="height:30px; color: aliceblue;" type='text' name='idx' itemIdx="1">1 -</label>
+					<label style="width:15%; color: aliceblue;">Etapa</label>
+					<input style="width:10%" type='text' name='name' value="Fundação" onchange="updateGraph()"></input>
+					<label style="width:15%; color: aliceblue;">Dependência</label>
+					<input style="height:30px; width:2%" type='number' name='dependency' forItem='' value="" onchange="var r = updateDependencyForLabel(event); if (r) updateGraph()"  min="1" oninput="validity.valid||(value='');"></input>
+					<label style="width:15%; color: aliceblue;">Nº Unidades</label>
+					<input style="height:30px; width:3%" type='number' name='units' value="5" onchange="updateGraph()" min="1" oninput="validity.valid||(value='');"></input>
+					<label style="width:15%; color: aliceblue;">Tempo(dias)/unid</label>
+					<input style="height:30px; width:3%" type='number' name='duration' value="10" onchange="updateGraph()" min="1" oninput="validity.valid||(value='');"></input>
+					<label style="width:15%; color: aliceblue;">Início</label>
+					<input style="width:15%; width:8%" type='text' name='startdate' value="04/10/2013" onchange="updateGraph()"></input>
+					<label style="width:15%; color: aliceblue;">Fim</label>
+					<input style="width:15%; width:8%; cursor: not-allowed;" type='text' name='enddate' disabled="true" value="04/11/2013" onchange="updateGraph()"> </input>
+					<label style="width:15%; color: aliceblue;">Dia</label>
+					<input style="width:15%; width:2%; cursor: not-allowed;" type='text' name='endday' disabled="true" value=""> </input>
+				</div>
+			</div>
+		</div>
+		<button @click="createNewItem" style="margin-top: 10px; margin-bottom: 10px; margin-left: 50%; -ms-transform: translate(-50%, 0%);
+transform: translate(-50%, 0%); cursor: pointer;"> Adicionar Etapa </button>
+		<div id="tester" style="width:100%" ></div>
+      </div>
+  </section>
+</template>
+
+<style>
+.p-1 {
+  padding: 1em;
+}
+</style>
+
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator'
+
+@Component
+export default class Planning extends Vue {
+  data () {
+    return {
+
+    }
+  }
+  createNewItem() {
+	var item = document.getElementById("item0");
+	var newItem = document.createElement('div');
+	newItem.innerHTML = item.innerHTML;
+	newItem.style.width = '100%';
+	newItem.style.marginTop = '10px';
+	newItem.setAttribute('types', 'item');
+	newItem.setAttribute('colors', '#' + Math.floor(Math.random()*16777215).toString(16));
+	
+
+	var form = document.getElementById("form");
+	var nItems = form.querySelectorAll('[types="item"]');
+	newItem.id = 'item' + nItems.length;
+
+	var idx = newItem.querySelector('[name="idx"]');
+	idx.setAttribute('itemIdx', nItems.length + 1);
+	idx.innerHTML = nItems.length + 1 + ' -';
+
+	var del = document.createElement('label');
+	del.setAttribute('onclick', 'deleteItem(event)');
+	del.style.color = 'aliceblue';
+	del.style.cursor = 'pointer';
+	del.innerHTML = 'X';
+
+	newItem.append(del);
+
+	form.append(newItem);
+
+	updateGraph();
+  }
+}
+
+const TESTER = document.getElementById('tester')
+
+//function 
+
+function deleteItem(event) {
+	event.target.parentElement.remove();
+	var form = document.getElementById('form');
+	var els = form.querySelectorAll('[types="item"]');
+	updateAllItemIdx(els);
+	var r = updateAllDependencyForLabel(els);
+	if (r) {
+		updateGraph();
+	}
+}
+
+function dep_resolve(node, resolved, unresolved, fullList) {
+	unresolved.push(node);
+	var retorno = true;
+	for (var i = 0; i < node.edges.length; i++) {
+		var edge = node.edges[i];
+		if (resolved.map(e => e.name).indexOf(edge.name) == -1) {
+			if (unresolved.map(e => e.name).indexOf(edge.name) != -1) {
+				//alert('erro');
+				retorno = false;
+				return {'status': false, message: `Referência circular detectada: Etapa ${node.name} -> ${edge.name}`};
+				break;
+			}
+			var ret = dep_resolve(fullList[fullList.map(e=>e.name).indexOf(edge.name)], resolved, unresolved, fullList);
+			return ret;
+		}
+	};
+	resolved.push(node);
+	const index = unresolved.map(e => e.name).indexOf(node.name);
+	if (index > -1) {
+	  unresolved.splice(index, 1);
+	} else alert('Rproblema');
+	return {'status':retorno}
+	//fonte:https://www.electricmonk.nl/docs/dependency_resolving_algorithm/dependency_resolving_algorithm.html
+}
+
+function checkDependenciaCircular() {
+	var etapas = document.querySelectorAll('[name="dependency"]');
+	var data = [];
+	etapas.forEach(etapa => {
+		var edges = [];
+		if (etapa.value != '') {
+			var steps = etapa.value.split(',');
+			steps.forEach(step => { edges.push( {'name': step} ); });
+		}
+		data.push( {
+			'name': etapa.parentElement.querySelector('[name="idx"]').getAttribute('itemIdx'),
+			'edges': edges
+		});
+
+	});
+	if (data.length > 0) {
+		var arr = [];
+		var resolved = [];
+		var ret = dep_resolve(data[0], resolved, [], data);
+		return ret;
+	}
+	else return {'status':true}
+}
+
+function updateAllItemIdx(els) {
+	for (var i = 0; i < els.length ; i++) {
+		var el = els[i].querySelector(`[name='idx']`);
+		el.setAttribute('itemIdx', i + 1);
+		el.innerHTML = i + 1 + ' -';
+	};
+}
+
+function updateAllDependencyForLabel(els) {
+	var retorno = true;
+	els.forEach(e => {
+		var r = updateDependencyForLabel({'target':e.querySelector(`[name='dependency']`)});
+		retorno = retorno && r;
+	});
+	return retorno;
+}
+
+function updateDependencyForLabel(event) {
+	var retorno = true;
+	var item = document.querySelector(`[itemIdx="${event.target.value}"]`);
+	if (event.target.value == '') {
+		var startdate = event.target.parentElement.querySelector('[name="startdate"]');
+		startdate.removeAttribute('disabled')
+		startdate.style.cursor = 'auto';
+		event.target.style.border = null;
+	}
+	//não pode ser dependente dele mesmo
+	else if (event.target.parentElement.querySelector(`[itemIdx="${event.target.value}"]`)) {
+		event.target.style.border = '2px solid red';
+		alert('O valor de dependência não pode ser a própria etapa.');
+		retorno = false;
+	}
+	else if (!item) {		
+		//não pode ser dependente de etapa que não existe
+		event.target.style.border = '2px solid red';
+		alert('O valor de dependência deve ser igual ao índice de uma etapa.');
+		retorno = false;
+	}
+	else {
+		var dependenciaCircular = checkDependenciaCircular();
+		if (!dependenciaCircular.status) {
+			event.target.style.border = '2px solid red';
+			alert(dependenciaCircular.message);
+			retorno = false;
+		}
+		else {
+			event.target.setAttribute('forItem', item.parentElement.id);
+			var startdate = event.target.parentElement.querySelector('[name="startdate"]');
+			startdate.setAttribute('disabled', true);
+			startdate.style.cursor = 'not-allowed';
+			event.target.style.border = null;
+		}
+	}
+	return retorno;
+}
+
+async function updateGraph() {
+	return new Promise(async(resolve, reject) => {
+		try {
+
+			var form = document.getElementById('form');
+			var els = form.querySelectorAll('[types="item"]');
+			var data = [];
+
+			var calendar = await mountCalendar(els);
+
+			updateEndDates(els, calendar.calendar);
+			updateStartDates(els, calendar.calendar);
+
+			calendar.graphTraces.forEach(el => {
+				data.push(createTrace(el));
+			});
+
+			executionCalendar = calendar.calendar;
+			endEtapasCalendar = calendar.endEtapasCalendar;
+
+			//Plotly.react(TESTER, data, layout);
+
+			resolve();
+		}
+		catch(e) {
+			console.log('erro no updateGraph');
+			console.log(e);
+			reject(e);
+		}
+	});
+}
+
+async function mountCalendar(els) {
+	return new Promise(async(resolve, reject) => {
+		try {
+			var firstDates = [];
+			var buffer = [];
+			els.forEach(el => {
+				var firstStep = el.querySelector('[name="startdate"]').getAttribute('disabled');
+				var startdate;
+				if (!firstStep) {
+					startdate = el.querySelector('[name="startdate"]').value;
+					firstDates.push({'item':el, 'date':startdate, 'milli':moment(startdate, 'DD/MM/YYYY').valueOf()})
+				}
+				buffer.push( {
+					'etapa': el.querySelector('[name="idx"]').getAttribute('itemIdx'),
+					'units': el.querySelector('[name="units"]').value,
+					'currunit': el.querySelector('[name="units"]').value,
+					'durationperunit': el.querySelector('[name="duration"]').value,
+					'currday': el.querySelector('[name="duration"]').value,
+					'req': el.querySelector('[name="dependency"]').value,
+					'startdate': startdate,
+					'startdatemilli': moment(startdate, 'DD/MM/YYYY').valueOf()
+				});		
+			});
+			var etapasOrderedByStartDate;
+
+			if (firstDates.length > 1)
+				etapasOrderedByStartDate = firstDates.sort((a, b) => {
+					return (a.milli - b.milli);
+				});
+			else if (firstDates.length == 1)
+				etapasOrderedByStartDate = firstDates;
+			else
+				alert('problema');
+
+			var calendar = [];
+			var graphTraces = [];
+			var endEtapasCalendar = [];
+			calendar = await calendar_resolver(calendar, endEtapasCalendar, buffer, etapasOrderedByStartDate, graphTraces);
+
+			resolve(calendar);
+		}
+		catch(e) {
+			console.log('erro no mountCalendar');
+			console.log(e);
+			reject(e);
+		}
+	});
+}
+
+let translateBack = function(value) {
+	var idx = transTable.map(e=>e[1]).indexOf(value);
+	if (idx == -1) 
+		return value;
+	else
+		return transTable[idx][0];
+}
+
+async function calendar_resolver(calendar, endEtapasCalendar, buffer, etapasOrderedByStartDate, graphTraces) {
+
+	return new Promise(async(resolve, reject) => {
+
+		try {
+
+			var etapas = [];
+			var endedEtapas = [];
+			var date;
+			if (calendar.length > 0)
+				date = calendar[calendar.length - 1].date.clone().add(1, 'days');
+			else {
+				date = moment(etapasOrderedByStartDate[0].date, "DD/MM/YYYY");
+			}
+
+			buffer.forEach(etapa => {
+				var finished = true;
+				var currday;
+				var currunit;
+				var start;
+				var end;
+
+		// para começar nova unidade, e tem requerimento/dependência de outra, deve verificar se na rodada anterior a dependência finalizou
+				var newAuthorized = true;
+				if (etapa.req && etapa.req != '') {
+					var s = endEtapasCalendar.filter(e => e.etapas.filter(k => k.etapa == etapa.req && k.fim).length > 0);
+					var abla = endEtapasCalendar.filter(e => e.etapas.filter(k => k.etapa == etapa.etapa && k.fim).length > 0);
+
+					if (s.length <= abla.length) {
+						newAuthorized = false;
+					}
+				} else {
+					var startdatePro = etapa.startdate;
+					if(etapa.startdatemilli > date.valueOf())
+						newAuthorized = false;
+				}
+				if (newAuthorized) {			
+					if (etapa.currday > 0) { // ainda tem que trabalhar na unidade
+						currday = etapa.currday;
+						etapa.currday -= 1;
+
+						currunit = etapa.currunit;
+
+						if (etapa.durationperunit == currday)
+							start = true;
+						else
+							start = false;
+
+						if (currday == 1)
+							end = true;
+						else
+							end = false;
+
+						finished = false;
+					}
+					else { //finalizou unidade na rodada anterior
+						if (etapa.currunit > 1) { // vamos para a próxima unidade
+							currday = etapa.durationperunit;
+							etapa.currday = etapa.durationperunit - 1;
+							
+							currunit = etapa.currunit - 1;
+
+							etapa.currunit = currunit;
+
+							start = true;
+							if (currday == 1)
+								end = true;
+							else
+								end = false;
+
+
+							finished = false;
+						}
+						else { // terminou todas unidades.
+							finished = true;
+						}
+					}
+				}
+				if (!finished && newAuthorized) {
+					//data:
+					var dt = {
+						'unidade': etapa.units - currunit + 1,
+						'equipe': 1,
+						'etapa': etapa.etapa,
+						'dia etapa': etapa.durationperunit - currday + 1,
+						'começo': start,
+						'fim': end,
+						'dia total': calendar.length == 0 ? 1 : calendar[calendar.length - 1]['dia'] + 1,
+					};
+					etapas.push(dt);
+
+					if (end)
+						endedEtapas.push(dt);
+
+					//graph:
+					var traceIdx = graphTraces.map(e => e.etapa).indexOf(etapa.etapa);
+					var textArray = [];
+					Object.keys(dt).forEach(key => textArray.push(key.capitalize() + ': ' + translateBack(dt[key])));
+					if (traceIdx == -1) {
+						graphTraces.push({
+								'etapa': etapa.etapa,
+								'x': [date.format('YYYY-MM-DD')],
+								'y': [dt.unidade],
+								'text': [textArray.join('<br>')]
+						});
+					} else {
+
+						graphTraces[traceIdx]['x'].push(date.format('YYYY-MM-DD'));
+						graphTraces[traceIdx]['y'].push(dt.unidade);
+						graphTraces[traceIdx]['text'].push(textArray.join('<br>'));
+					}
+				}
+			});
+			if (graphTraces.length < buffer.length || etapas.length > 0) {
+				var calen = {
+					'date': date,
+					'dia': calendar.length == 0 ? 1 : calendar[calendar.length - 1]['dia'] + 1,
+					'etapas': etapas
+				};
+				calendar.push(calen);
+				if (endedEtapas.filter(e => e.fim).length > 0)
+					endEtapasCalendar.push(calen);
+
+				if (etapas.length == 0) {
+					var temp = etapasOrderedByStartDate.findIndex(e => e.milli > calen.date.valueOf());
+					var nextFirstDay = etapasOrderedByStartDate[temp];
+					var daysToNextEtapa = moment(nextFirstDay.date, "DD/MM/YYYY").diff(calen.date , 'days');
+					if (daysToNextEtapa > 1) {
+						var calen = {
+							'date': calendar[calendar.length - 1].date.clone().add(daysToNextEtapa - 1 , 'days'),
+							'dia': calendar.length + daysToNextEtapa,
+							'etapas': []
+						};
+						calendar.push(calen);
+					}
+					await calendar_resolver(calendar, endEtapasCalendar, buffer, etapasOrderedByStartDate, graphTraces);
+					resolve({ calendar, graphTraces});
+
+				} else {
+					await calendar_resolver(calendar, endEtapasCalendar, buffer, etapasOrderedByStartDate, graphTraces);
+					resolve ( { calendar, graphTraces, endEtapasCalendar} );
+				}
+			}
+			else {
+				resolve ( { calendar, graphTraces, endEtapasCalendar} );			
+			}
+		}
+		catch(e) {
+			console.log('erro no try');
+			console.log(e);
+			reject(e);
+		}
+	});	
+}
+
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1)
+}
+
+var transTable = [
+	['Sim','true'],
+	['Não','false'],
+	['Sim',true],
+	['Não',false]
+]
+
+
+
+let translate = function(value) {
+	var idx = transTable.map(e=>e[0]).indexOf(value);
+	if (idx == -1) 
+		return '';
+	else
+		return transTable[idx][1];
+}
+
+function updateEndDate(el, calendar) {
+	var newCalendar = JSON.parse(JSON.stringify(calendar));
+	var val = el.querySelector('[name="idx"]').getAttribute('itemIdx');
+	var s = newCalendar.map(e=> { e.etapas = e.etapas.filter(k=>k.etapa == val && k.fim); return e});
+	s = s.filter(e=>e.etapas.length > 0);
+	var datefield = el.querySelector('[name="enddate"]');
+	var obj = s[s.length-1];
+	datefield.value = moment(obj.date).format('DD/MM/YYYY');
+	var dayfield = el.querySelector('[name="endday"]');
+	dayfield.value = obj.dia;
+}
+
+function updateEndDates(els, calendar) {
+	els.forEach(e => updateEndDate(e, calendar));
+}
+
+function updateStartDate(el, calendar) {
+	var bol = el.querySelector('[name="startdate"]').getAttribute('disabled');
+	if (bol) {
+		var newCalendar = JSON.parse(JSON.stringify(calendar));
+		var val = el.querySelector('[name="idx"]').getAttribute('itemIdx');
+		var s = newCalendar.map(e=> { e.etapas = e.etapas.filter(k=>k.etapa == val && k['começo']); return e});
+		s = s.filter(e=>e.etapas.length > 0);
+		var datefield = el.querySelector('[name="startdate"]');
+		var obj = s[0];
+		datefield.value = moment(obj.date).format('DD/MM/YYYY');
+	}
+}
+
+function updateStartDates(els, calendar) {
+	els.forEach(e => updateStartDate(e, calendar));
+}
+
+function fillEndDates(els) {
+
+}
+
+var executionCalendar = [
+	/*{
+		'date':'',
+		'dia':1,
+		'etapa':1,
+		'unidade':1
+		'equipe':1
+	}*/
+]
+var endEtapasCalendar;
+
+
+	
+	//d: dia
+	//e: etapa (idx)
+	//u: unidade (idx)
+	//[d:[e:u],................]
+          //[1:[1:1],2:[1:1],3:[1:2,2:1], 4:[1:2,2:1]];
+
+
+function createTrace(item) {
+	var items = document.querySelectorAll('[name="idx"]');
+
+	var idx;
+	for (var i = 0; i < items.length; i++) {
+		if (items[i].getAttribute('itemIdx') == item.etapa) {
+			idx = i;
+			break;
+		}
+	}
+
+	var domObj = items[idx];
+	var name = domObj.parentElement.querySelector('[name="name"]').value;
+	var color = domObj.parentElement.getAttribute('colors');
+
+	var trace = {
+	  x: item['x'],
+	  y: item['y'],
+	  mode: 'markers+lines',
+	  type: "scatter",
+	  name,
+	  line: {color},
+	  text: item['text'],
+	  hovertemplate: 'Data: %{x}<br>%{text}'
+	};
+
+	return trace;
+}
+
+
+var trace1 = {
+  x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00'],
+  y: [10, 15],
+  text: ['Text A', 'Text B'],
+  mode: 'lines',
+  type: "scatter",
+  name: 'Fundação',
+  line: {color: '#17BECF'}
+};
+
+var data = [ trace1 ];
+
+var layout = {
+  title: 'Linha de Balanço',
+  xaxis: {
+    autorange: true,
+    range: ['2013-10-04', '2013-11-04'],
+    rangeselector: {buttons: [
+	{
+	  count: 1,
+	  label: '1m',
+	  step: 'month',
+	  stepmode: 'backward'
+	},
+	{
+	  count: 6,
+	  label: '6m',
+	  step: 'month',
+	  stepmode: 'backward'
+	},
+	{ 
+	  step: 'all',
+	  label: 'tudo'}
+      ]},
+    rangeslider: {range: ['2013-10-04', '2013-11-04']},
+    type: 'date'
+  },
+  yaxis: {
+    autorange: true,
+    range: [0, 20],
+    type: 'linear'
+  },
+  hovermode: 'closest',
+  hovertemplate: '%{x:$}'
+};
+
+var config = {
+	locale: 'pt-BR', 
+	"displaylogo": false
+};
+
+/*Plotly.register(locale);
+Plotly.setPlotConfig(config)
+
+Plotly.newPlot(TESTER, data, layout);
+*/
+
+</script>

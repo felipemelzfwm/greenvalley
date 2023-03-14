@@ -61,12 +61,10 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-// import { MenuBar } from './index.ts'
 import LoginModal from './LoginModal.vue'
 
 @Component({
   components: {
-    // MenuBar,
     LoginModal
   }
 })

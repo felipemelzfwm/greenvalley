@@ -5,12 +5,8 @@ import ClientsView from '../views/ClientsView.vue'
 
 Vue.use(VueRouter)
 
-// const baseUrl = process.env.NODE_ENV === 'production' ? '/greenvalley' : ''
-// process.env.BASE_URL
 const baseUrl = process.env.NODE_ENV === 'production' ? '/greenvalley/' : '/'
 
-console.log('baseUrl = ' + baseUrl)
-//    path: '/',
 const routes: Array<RouteConfig> = [
   {
     path: '/',
@@ -111,7 +107,6 @@ const routes: Array<RouteConfig> = [
   } */
 ]
 
-// console.log('process.env.BASE_URL = ' + baseUrl)
 const router = new VueRouter({
   mode: 'history',
   base: baseUrl,
