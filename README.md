@@ -2,6 +2,8 @@
 
 Sample app using Buefy and Vue.js
 
+# [Live Demo](https://felipemelzfwm.github.io/greenvalley/home)
+
 # Requirements
 
 node v12.20.1
