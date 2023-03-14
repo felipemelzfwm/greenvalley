@@ -10,13 +10,13 @@
             </b-navbar-item>
         </template>
         <template #start>
-            <b-navbar-item href="/home">
+            <b-navbar-item :href="`${base_url}home`">
                 Home
             </b-navbar-item>
-            <b-navbar-item href="/home/profile">
+            <b-navbar-item :href="`${base_url}home/profile`">
                 Profile
             </b-navbar-item>
-            <b-navbar-item href="/home/client">
+            <b-navbar-item :href="`${base_url}home/client`">
                 Clients
             </b-navbar-item>
             <b-navbar-dropdown label="Info">
@@ -73,7 +73,8 @@ import LoginModal from './LoginModal.vue'
 export default class NavBar extends Vue {
   data () {
     return {
-      closeLoginModal: false
+      closeLoginModal: false,
+      base_url: process.env.BASE_URL
     }
   }
 

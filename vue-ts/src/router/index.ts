@@ -20,7 +20,7 @@ const routes: Array<RouteConfig> = [
       breadCrumb: [
         {
           text: 'Home',
-          to: '/'
+          to: baseUrl
         }
       ]
     }
@@ -33,7 +33,7 @@ const routes: Array<RouteConfig> = [
       breadCrumb: [
         {
           text: 'Home',
-          to: '/home'
+          to: baseUrl + 'home'
         }
       ]
     }
@@ -47,11 +47,11 @@ const routes: Array<RouteConfig> = [
         return [
           {
             text: 'Home',
-            to: '/home'
+            to: baseUrl + 'home'
           },
           {
             text: 'Profile',
-            to: '/home/profile'
+            to: baseUrl + 'home/profile'
           }
         ]
       }
@@ -67,11 +67,11 @@ const routes: Array<RouteConfig> = [
         return [
           {
             text: 'Home',
-            to: '/home'
+            to: baseUrl + 'home'
           },
           {
             text: 'Client',
-            to: '/home/client'
+            to: baseUrl + 'home/client'
           }
         ]
       }
@@ -87,15 +87,15 @@ const routes: Array<RouteConfig> = [
         return [
           {
             text: 'Home',
-            to: '/home'
+            to: baseUrl + 'home'
           },
           {
             text: 'Client',
-            to: '/home/client'
+            to: baseUrl + 'home/client'
           },
           {
             text: clientId,
-            to: '/home/client/' + clientId
+            to: baseUrl + 'home/client/' + clientId
           }
         ]
       }
