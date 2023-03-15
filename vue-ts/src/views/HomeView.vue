@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="container">
-        <Planning></Planning>
+      <h1> Welcome to your next product tool. </h1>
         <!--img alt="Vue logo" src="../assets/logo.png"~-->
     </div>
   </div>

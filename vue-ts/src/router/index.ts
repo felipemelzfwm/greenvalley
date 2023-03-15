@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { Route, RouteConfig } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import PlanView from '../views/PlanView.vue'
 import ClientsView from '../views/ClientsView.vue'
 
 Vue.use(VueRouter)
@@ -35,9 +36,9 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: '/home/profile',
-    name: 'Profile',
-    component: HomeView,
+    path: '/home/planning',
+    name: 'Planning',
+    component: PlanView,
     meta: {
       breadCrumb (route: Route) {
         return [
@@ -46,8 +47,8 @@ const routes: Array<RouteConfig> = [
             to: baseUrl + 'home'
           },
           {
-            text: 'Profile',
-            to: baseUrl + 'home/profile'
+            text: 'Planning',
+            to: baseUrl + 'home/planning'
           }
         ]
       }

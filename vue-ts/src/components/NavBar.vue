@@ -13,8 +13,8 @@
             <b-navbar-item :href="`${base_url}home`">
                 Home
             </b-navbar-item>
-            <b-navbar-item :href="`${base_url}home/profile`">
-                Profile
+            <b-navbar-item :href="`${base_url}home/planning`">
+                Planning
             </b-navbar-item>
             <b-navbar-item :href="`${base_url}home/client`">
                 Clients

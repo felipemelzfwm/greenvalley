@@ -4,22 +4,24 @@
        <h1> Planejamento </h1>
        <div id="form" style="width:100%;">		
 			<div id="form" style="width:100%;">
-				<div id="item0" style="width:100%; margin-top: 10px;" types='item' colors='#17BECF'>
-					<label style="height:30px; color: black;" type='text' name='idx' itemIdx="1">1 -</label>
-					<label style="width:15%; color: black;">Etapa</label>
-					<input style="width:10%" type='text' name='name' value="Fundação" :change="updateGraph"></input>
-					<label style="width:15%; color: black;">Dependência</label>
-					<input style="height:30px; width:2%" type='number' name='dependency' forItem='' value="" :change="updatedDependency"  min="1" oninput="validity.valid||(value='');"></input>
-					<label style="width:15%; color: black;">Nº Unidades</label>
-					<input style="height:30px; width:3%" type='number' name='units' value="5" :change="updateGraph" min="1" oninput="validity.valid||(value='');"></input>
-					<label style="width:15%; color: black;">Tempo(dias)/unid</label>
-					<input style="height:30px; width:3%" type='number' name='duration' value="10" :change="updateGraph" min="1" oninput="validity.valid||(value='');"></input>
-					<label style="width:15%; color: black;">Início</label>
-					<input style="width:15%; width:8%" type='text' name='startdate' value="04/10/2013" :change="updateGraph"></input>
-					<label style="width:15%; color: black;">Fim</label>
-					<input style="width:15%; width:8%; cursor: not-allowed;" type='text' name='enddate' disabled="true" value="04/11/2013" :change="updateGraph"> </input>
-					<label style="width:15%; color: black;">Dia</label>
+				<div v-for="formitem in inputformitems" :key="formitem.idx" style="width:100%; margin-top: 10px;" types='item' :colors="formitem.colors" :id="'item'+formitem.idx">
+					
+					<label style="height:30px; color: black;" type='text' name='idx' :itemIdx="formitem.idx">{{formitem.idx + ' - '}}</label>
+					<label style="width:15%; color: black;">Etapa  </label>
+					<input style="width:10%" type='text' name='name' :value="formitem.name" v-on:input="updateGraph"></input>
+					<label style="width:15%; color: black;">    Dependência  </label>
+					<input style="height:30px; width:5%" type='number' name='dependency' forItem='' value=""  v-on:input="updatedDependency"  min="1" oninput="validity.valid||(value='');"></input>
+					<label style="width:15%; color: black;">    Nº Unidades  </label>
+					<input style="height:30px; width:3%" type='number' name='units' value="5" v-on:input="updateGraph" min="1" oninput="validity.valid||(value='');"></input>
+					<label style="width:15%; color: black;">    Tempo(dias)/unid  </label>
+					<input style="height:30px; width:3%" type='number' name='duration' value="10" v-on:input="updateGraph" min="1" oninput="validity.valid||(value='');"></input>
+					<label style="width:15%; color: black;">    Início  </label>
+					<input style="width:15%; width:8%" type='text' name='startdate' value="04/10/2013" v-on:input="updateGraph"></input>
+					<label style="width:15%; color: black;">    Fim  </label>
+					<input style="width:15%; width:8%; cursor: not-allowed;" type='text' name='enddate' disabled="true" value="04/11/2013" v-on:input="updateGraph"> </input>
+					<label style="width:15%; color: black;">    Dia  </label>
 					<input style="width:15%; width:2%; cursor: not-allowed;" type='text' name='endday' disabled="true" value=""> </input>
+					<label @click="deleteItem" style="cursor:'pointer'; color: black;"> X </label>
 				</div>
 			</div>
 		</div>
@@ -46,7 +48,6 @@ export default class Planning extends Vue {
 
 	data () {
 		return {
-
 		executionCalendar: [],
 		/*{
 			'date':'',
@@ -63,7 +64,7 @@ export default class Planning extends Vue {
 			['Sim',true],
 			['Não',false]
 		],
-		//	endEtapasCalendar: null,
+		endEtapasCalendar: [],
 		trace1: {
 		  x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00'],
 		  y: [10, 15],
@@ -74,8 +75,12 @@ export default class Planning extends Vue {
 		  line: {color: '#17BECF'}
 		},
 
-		data: [ this.trace1 ],
-
+		traces: [ this.trace1 ],
+		inputformitems: [{
+			idx: 1,
+			name: "Fundacao",
+			colors: "#17BECF"
+		}],
 		layout: {
 		  title: 'Linha de Balanço',
 		  xaxis: {
@@ -115,53 +120,43 @@ export default class Planning extends Vue {
 			"displaylogo": false
 		},
 		TESTER: document.getElementById('tester')
-		}
+	   }
 	}
 	mounted () {
 		//Plotly.register(this.config.locale);
 		Plotly.setPlotConfig(this.config)
 
 		Plotly.newPlot(document.getElementById('tester'), [ this.trace1 ], this.layout);
-	}
-	createNewItem() {
-		var item = document.getElementById("item0");
-		var newItem = document.createElement('div');
-		newItem.innerHTML = item.innerHTML;
-		newItem.style.width = '100%';
-		newItem.style.marginTop = '10px';
-		newItem.setAttribute('types', 'item');
-		newItem.setAttribute('colors', '#' + Math.floor(Math.random()*16777215).toString(16));
-
-
-		var form = document.getElementById("form");
-		var nItems = form.querySelectorAll('[types="item"]');
-		newItem.id = 'item' + nItems.length;
-
-		var idx = newItem.querySelector('[name="idx"]');
-		idx.setAttribute('itemIdx', nItems.length + 1);
-		idx.innerHTML = nItems.length + 1 + ' -';
-
-		var del = document.createElement('label');
-		del.setAttribute('onclick', 'deleteItem(event)');
-		del.style.color = 'black';
-		del.style.cursor = 'pointer';
-		del.innerHTML = 'X';
-
-		newItem.append(del);
-
-		form.append(newItem);
-
 		this.updateGraph();
 	}
+	updated() {
+		this.updateGraph();
+	}
+	createNewItem() {
+		this.inputformitems.push({
+			idx: this.inputformitems.length + 1,
+			name: "Fundacao",
+			colors: '#' + Math.floor(Math.random()*16777215).toString(16)
+		});
+		//this.updateGraph();
+	}
  	 deleteItem(event) {
-		event.target.parentElement.remove();
+ 	   if (this.inputformitems.length > 1) {
+
+
+		var id = event.target.parentElement.id;
+ 	   	console.log("id = " + id);
+		var idx = id.substring(4) -1;
+ 	   	console.log("idx = " + idx);
+		this.inputformitems.splice(idx, 1);
+		
+		//event.target.parentElement.remove();
 		var form = document.getElementById('form');
 		var els = form.querySelectorAll('[types="item"]');
-		this.updateAllItemIdx(els);
+		this.updateAllItemIdx();
 		var r = this.updateAllDependencyForLabel(els);
-		if (r) {
-			this.updateGraph();
-		}
+
+	  }
 	}
 
 	dep_resolve(node, resolved, unresolved, fullList) {
@@ -213,11 +208,9 @@ export default class Planning extends Vue {
 		else return {'status':true}
 	}
 
-	updateAllItemIdx(els) {
-		for (var i = 0; i < els.length ; i++) {
-			var el = els[i].querySelector(`[name='idx']`);
-			el.setAttribute('itemIdx', i + 1);
-			el.innerHTML = i + 1 + ' -';
+	updateAllItemIdx() {
+		for (var i = 0; i < this.inputformitems.length ; i++) {
+			this.inputformitems[i].idx = i + 1;
 		};
 	}
 
@@ -289,9 +282,9 @@ export default class Planning extends Vue {
 				});
 
 				this.executionCalendar = calendar.calendar;
-//				this.endEtapasCalendar = calendar.endEtapasCalendar;
+				this.endEtapasCalendar = calendar.endEtapasCalendar;
 
-				Plotly.react(this.TESTER, data, this.layout);
+				Plotly.react(document.getElementById('tester'), data, this.layout);
 
 				resolve();
 			}
@@ -320,6 +313,8 @@ export default class Planning extends Vue {
 						startdate = el.querySelector('[name="startdate"]').value;
 						firstDates.push({'item':el, 'date':startdate, 'milli':moment(startdate, 'DD/MM/YYYY').valueOf()})
 					}
+					console.log("mounting calendar");
+					console.log("itemIdx = " + el.querySelector('[name="idx"]').getAttribute('itemIdx'));
 					buffer.push( {
 						'etapa': el.querySelector('[name="idx"]').getAttribute('itemIdx'),
 						'units': el.querySelector('[name="units"]').value,
@@ -571,7 +566,8 @@ export default class Planning extends Vue {
 
 	createTrace(item) {
 		var items = document.querySelectorAll('[name="idx"]');
-
+console.log("creating trace");
+console.log("items.length =" + items.length);
 		var idx;
 		for (var i = 0; i < items.length; i++) {
 			if (items[i].getAttribute('itemIdx') == item.etapa) {
@@ -579,6 +575,8 @@ export default class Planning extends Vue {
 				break;
 			}
 		}
+console.log("idx =" + idx);
+
 
 		var domObj = items[idx];
 		var name = domObj.parentElement.querySelector('[name="name"]').value;
@@ -596,6 +594,7 @@ export default class Planning extends Vue {
 		};
 
 		return trace;
+
 	}
 
 
